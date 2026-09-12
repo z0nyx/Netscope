@@ -1,3 +1,11 @@
+#if !defined(_WIN32) && !defined(_POSIX_C_SOURCE)
+/* inet_ntop() is POSIX, not ISO C. Building with CMAKE_C_EXTENSIONS OFF
+ * passes -std=c17 (strict ANSI), which hides it from glibc's headers unless
+ * a feature test macro opts back in -- must be defined before any system
+ * header (incl. transitively, via capture.h) is included. */
+#define _POSIX_C_SOURCE 200809L
+#endif
+
 #include "netscope/capture.h"
 
 #include <arpa/inet.h>

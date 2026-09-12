@@ -149,7 +149,12 @@ void ns_format_bytes(uint64_t bytes, char *buf, size_t buf_len) {
  * to hit the buffer's limit.
  */
 static size_t append_line(char *buf, size_t buf_len, size_t pos, const char *fmt, ...)
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__clang__)
+    /* Clang only accepts the gnu_printf archetype for GNU-libc targets, not
+     * Darwin/MinGW, and its own "printf" archetype already understands
+     * %zx/%zu on every target, so plain "printf" is the portable choice. */
+    __attribute__((format(printf, 4, 5)))
+#elif defined(__GNUC__)
     /* gnu_printf (not plain "printf") so %zx/%zu are recognized even when
      * targeting an MS CRT, where GCC's default "printf" archetype does
      * not know that conversion. */
@@ -163,7 +168,17 @@ static size_t append_line(char *buf, size_t buf_len, size_t pos, const char *fmt
     }
     va_list args;
     va_start(args, fmt);
+#if defined(__GNUC__) || defined(__clang__)
+    /* fmt is forwarded from append_line's own format-checked parameter, so
+     * this indirection is intentional -- Wformat-nonliteral has no way to
+     * know that and would otherwise fire on every printf-style wrapper. */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
     int written = vsnprintf(buf + pos, buf_len - pos, fmt, args);
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
     va_end(args);
     if (written <= 0) {
         return pos;

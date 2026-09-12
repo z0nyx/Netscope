@@ -6,7 +6,12 @@
 void ns_log_set_level(ns_log_level_t level);
 
 void ns_log(ns_log_level_t level, const char *fmt, ...)
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__clang__)
+    /* Clang only accepts the gnu_printf archetype for GNU-libc targets, not
+     * Darwin/MinGW, and its own "printf" archetype already recognizes %z on
+     * every target, so plain "printf" is the portable choice. */
+    __attribute__((format(printf, 2, 3)))
+#elif defined(__GNUC__)
     /* gnu_printf, not plain "printf": on an MS-CRT target GCC's "printf"
      * archetype does not recognize %z, which some call sites use. */
     __attribute__((format(gnu_printf, 2, 3)))
