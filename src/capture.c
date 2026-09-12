@@ -1,9 +1,13 @@
-#if !defined(_WIN32) && !defined(_POSIX_C_SOURCE)
+#if !defined(_WIN32) && !defined(__APPLE__) && !defined(_DEFAULT_SOURCE)
 /* inet_ntop() is POSIX, not ISO C. Building with CMAKE_C_EXTENSIONS OFF
  * passes -std=c17 (strict ANSI), which hides it from glibc's headers unless
  * a feature test macro opts back in -- must be defined before any system
- * header (incl. transitively, via capture.h) is included. */
-#define _POSIX_C_SOURCE 200809L
+ * header (incl. transitively, via capture.h, which also pulls in
+ * <pcap/pcap.h>) is included. _DEFAULT_SOURCE rather than _POSIX_C_SOURCE:
+ * the latter also suppresses glibc's default BSD-type exposure
+ * (u_int/u_char/...) that pcap.h needs. Not needed on Darwin, where
+ * libpcap's headers aren't gated this way. */
+#define _DEFAULT_SOURCE
 #endif
 
 #include "netscope/capture.h"

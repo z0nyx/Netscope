@@ -1,9 +1,12 @@
-#if !defined(_WIN32) && !defined(_POSIX_C_SOURCE)
+#if !defined(_WIN32) && !defined(__APPLE__) && !defined(_DEFAULT_SOURCE)
 /* clock_gettime is POSIX, not ISO C. Building with CMAKE_C_EXTENSIONS OFF
  * passes -std=c17 (strict ANSI), which hides it from glibc's <time.h>
  * unless a feature test macro opts back in -- must be defined before that
- * header (or anything pulling it in transitively) is included. */
-#define _POSIX_C_SOURCE 200809L
+ * header (or anything pulling it in transitively) is included. _DEFAULT_
+ * SOURCE rather than _POSIX_C_SOURCE: the latter also suppresses glibc's
+ * default BSD-type exposure (u_int/u_char/...) that <pcap/pcap.h> needs.
+ * Not needed on Darwin, where libpcap's headers aren't gated this way. */
+#define _DEFAULT_SOURCE
 #endif
 
 #include <stdio.h>
