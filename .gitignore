@@ -1,0 +1,20 @@
+build/
+build-*/
+cmake-build-*/
+.idea/
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+compile_commands.json
+CMakeUserPresets.json
+*.pcap.tmp
+samples/*.pcap
+.DS_Store
+
+# Local planning/spec notes -- not part of the published project.
+Roadmap-Netscope.md

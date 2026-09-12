@@ -1,0 +1,42 @@
+# -bugprone-signed-bitwise: fires on every `byte << shift | byte` used to
+#   assemble multi-byte big-endian values (src/util.c and elsewhere) --
+#   integer promotion makes the operand technically "signed" for the shift,
+#   but the values are always small (bounded by the byte/field width being
+#   assembled) and never overflow into sign-bit territory. This is the
+#   standard, safe C idiom for byte-order assembly; a blanket signedness
+#   heuristic doesn't add value here.
+# -readability-math-missing-parentheses: asks for explicit parens around
+#   ordinary `*` before `+`, which is unambiguous standard precedence, not
+#   worth the noise.
+# -readability-use-concise-preprocessor-directives: prefers #ifdef X over
+#   #if defined(X); the latter is used deliberately where a guard might
+#   plausibly grow an `|| defined(Y)` later.
+# -readability-uppercase-literal-suffix / -readability-isolate-declaration:
+#   conflict with this codebase's consistent (lowercase suffix, grouped
+#   related declarations) style; enabling them would produce a large,
+#   low-value mechanical diff.
+Checks: >
+  bugprone-*,
+  clang-analyzer-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  -bugprone-easily-swappable-parameters,
+  -readability-uppercase-literal-suffix,
+  -readability-isolate-declaration,
+  -readability-use-concise-preprocessor-directives,
+  -readability-math-missing-parentheses,
+  -bugprone-signed-bitwise
+WarningsAsErrors: ''
+HeaderFilterRegex: 'include/netscope/.*'
+FormatStyle: file
+CheckOptions:
+  # ns_dns_decode_name (src/protocols/dns.c) intentionally exceeds the
+  # default threshold of 25: it is a single bounded state machine for
+  # walking DNS compression pointers/labels, and splitting it up would
+  # scatter the jump-counter/bounds-check invariants documented there
+  # across multiple functions rather than reducing real complexity.
+  - key: readability-function-cognitive-complexity.Threshold
+    value: '30'

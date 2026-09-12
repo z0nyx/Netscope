@@ -1,0 +1,11 @@
+#ifndef NETSCOPE_PROTOCOLS_PROTO_COMMON_H
+#define NETSCOPE_PROTOCOLS_PROTO_COMMON_H
+
+typedef enum {
+    NS_PARSE_OK = 0,
+    NS_PARSE_TRUNCATED,
+    NS_PARSE_MALFORMED,
+    NS_PARSE_UNSUPPORTED
+} ns_parse_status_t;
+
+#endif
